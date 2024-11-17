@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "SmashCharacter.generated.h"
 
+class USmashCharacterInputData;
+class UInputMappingContext;
 class USmashCharacterStateMachine;
 
 UCLASS()
@@ -38,10 +40,14 @@ public :
 
 	void SetOrientX(float NewOrientX);
 
-protected :
-	UPROPERTY(BlueprintReadWrite)
-	float OrientX = 1.f;
+	float GetHorizontalVelocity() const;
 
+	void SetHorizontalVelocity(float NewHorizontalVelocity);
+
+protected :
+	UPROPERTY(BluePrintReadWrite)
+	float OrientX = 1.f;
+	float HorizontalVelocity = 0.f;
 	void RotateMeshUsingOrientX() const;
 	
 #pragma endregion Orient
@@ -53,9 +59,25 @@ public:
 
 	void InitStateMachine();
 
+	void TickStateMachine(float DeltaTime) const;
+
 protected:
-	UPROPERTY();
+	UPROPERTY(BlueprintReadOnly);
 	TObjectPtr<USmashCharacterStateMachine> StateMachine;
 	
 #pragma endregion State Machine
+
+#pragma region Input Data / Mapping Context
+	
+public:
+	UPROPERTY()
+	TObjectPtr<UInputMappingContext> InputMappingContext;
+
+	UPROPERTY()
+	TObjectPtr<USmashCharacterInputData> InputData;
+
+protected:
+	void SetupMappingContextIntoController() const;
+	
+	#pragma endregion
 };

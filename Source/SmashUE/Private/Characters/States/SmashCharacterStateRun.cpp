@@ -1,16 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Characters/States/SmashCharacterStateWalk.h"
+#include "Characters/States/SmashCharacterStateRun.h"
 
 #include "Characters/SmashCharacter.h"
 #include "Characters/SmashCharacterStateID.h"
-ESmashCharacterStateID USmashCharacterStateWalk::GetStateID()
+
+ESmashCharacterStateID USmashCharacterStateRun::GetStateID()
 {
-	return ESmashCharacterStateID::Walk;
+	return ESmashCharacterStateID::Run;
 }
 
-void USmashCharacterStateWalk::StateEnter(ESmashCharacterStateID PreviousStateID)
+void USmashCharacterStateRun::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
 
@@ -18,12 +19,12 @@ void USmashCharacterStateWalk::StateEnter(ESmashCharacterStateID PreviousStateID
 		-1,
 		3.f,
 		FColor::Cyan,
-		TEXT("Enter StateWalk")
+		TEXT("Enter StateRun")
 		);
-	Character->PlayAnimMontage(WalkMontage);
+	Character->PlayAnimMontage(RunMontage);
 }
 
-void USmashCharacterStateWalk::StateExit(ESmashCharacterStateID NextStateID)
+void USmashCharacterStateRun::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
 
@@ -31,11 +32,11 @@ void USmashCharacterStateWalk::StateExit(ESmashCharacterStateID NextStateID)
 		-1,
 		3.f,
 		FColor::Red,
-		TEXT("Exit StateWalk")
+		TEXT("Exit StateRun")
 		);
 }
 
-void USmashCharacterStateWalk::StateTick(float DeltaTime)
+void USmashCharacterStateRun::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
 
@@ -43,14 +44,15 @@ void USmashCharacterStateWalk::StateTick(float DeltaTime)
 		-1,
 		0.1f,
 		FColor::Green,
-		TEXT("Tick StateWalk")
+		TEXT("Tick StateRun")
 		);
 	USkeletalMeshComponent* Mesh = Character->GetMesh();
 	FVector StaticMesh_Location = Mesh->GetRelativeLocation();
 	float HorizontalVelocity = Character->GetHorizontalVelocity();
 	float Orient = FMath::Sign(Character->GetOrientX());
-	HorizontalVelocity = FMath::Clamp((HorizontalVelocity+Acceleration * DeltaTime) * Orient, -WalkSpeedMax, WalkSpeedMax);
+	HorizontalVelocity = FMath::Clamp((HorizontalVelocity+Acceleration * DeltaTime) * Orient, -RunSpeedMax, RunSpeedMax);
 	Character->SetHorizontalVelocity(HorizontalVelocity);
 	FVector Location = FVector(StaticMesh_Location.X + HorizontalVelocity, StaticMesh_Location.Y, StaticMesh_Location.Z);
 	Mesh->SetRelativeLocation(Location);
 }
+

@@ -4,6 +4,8 @@
 #include "Characters/SmashCharacter.h"
 
 #include "Characters/SmashCharacterStateMachine.h"
+#include "Engine/LocalPlayer.h"
+#include "EnhancedInputSubsystems.h"
 
 
 // Sets default values
@@ -26,25 +28,40 @@ void ASmashCharacter::BeginPlay()
 void ASmashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	TickStateMachine(DeltaTime);
 	RotateMeshUsingOrientX();
 }
 
+void ASmashCharacter::TickStateMachine(float DeltaTime) const
+{
+	if (StateMachine == nullptr) return;
+	StateMachine -> Tick(DeltaTime);
+}
 // Called to bind functionality to input
 void ASmashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	SetupMappingContextIntoController();
 }
 
 float ASmashCharacter::GetOrientX() const
 {
 	return OrientX;
 }
+float ASmashCharacter::GetHorizontalVelocity() const
+{
+	return HorizontalVelocity;
+}
 
 void ASmashCharacter::SetOrientX(float NewOrientX)
 {
 	OrientX = NewOrientX;
 }
-
+void ASmashCharacter::SetHorizontalVelocity(float NewHorizontalVelocity)
+{
+	HorizontalVelocity = NewHorizontalVelocity;
+}
 void ASmashCharacter::RotateMeshUsingOrientX() const
 {
 	FRotator Rotation = GetMesh()->GetRelativeRotation();
@@ -61,4 +78,18 @@ void ASmashCharacter::InitStateMachine()
 {
 	if (StateMachine == nullptr) return;
 	StateMachine->Init(this);
+}
+
+void ASmashCharacter::SetupMappingContextIntoController() const
+{
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	if (PlayerController == nullptr) return;
+
+	ULocalPlayer* Player = PlayerController->GetLocalPlayer();
+	if (Player == nullptr) return;
+
+	UEnhancedInputLocalPlayerSubsystem* InputSystem = Player->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (InputSystem == nullptr) return;
+
+	InputSystem->AddMappingContext(InputMappingContext, 0);
 }

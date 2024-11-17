@@ -7,11 +7,25 @@
 #include "SmashCharacterStateWalk.generated.h"
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(SmashCharacterState), meta=(BlueprintSpawnableComponent))
 class SMASHUE_API USmashCharacterStateWalk : public USmashCharacterState
 {
 	GENERATED_BODY()
 
 public:
 	virtual ESmashCharacterStateID GetStateID() override;
+
+	virtual void StateEnter(ESmashCharacterStateID PreviousStateID) override;
+
+	virtual void StateExit(ESmashCharacterStateID NextStateID) override;
+
+	virtual void StateTick(float DeltaTime) override;
+
+protected:
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* WalkMontage;
+	UPROPERTY(EditAnywhere)
+	float WalkSpeedMax = 10.f;
+	UPROPERTY(EditAnywhere);
+	float Acceleration = 1.f;
 };

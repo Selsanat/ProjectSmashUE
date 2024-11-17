@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 
-UENUM()
+UENUM(BluePrintType)
 enum class ESmashCharacterStateID : uint8
 {
 	None = 0,
 	Idle,
 	Walk,
+	Run,
 };
