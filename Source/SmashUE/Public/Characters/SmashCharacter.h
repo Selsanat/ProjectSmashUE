@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "SmashCharacter.generated.h"
 
+struct FInputActionValue;
 class USmashCharacterInputData;
 class UInputMappingContext;
 class USmashCharacterStateMachine;
@@ -80,4 +81,21 @@ protected:
 	void SetupMappingContextIntoController() const;
 	
 	#pragma endregion
+
+#pragma region Input Move X
+
+public:
+	float GetInputMoveX() const;
+
+protected:
+	UPROPERTY()
+	float InputMoveX = 0.f;
+
+private:
+	void BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent);
+
+	void OnInputMoveX(const FInputActionValue& InputActionValue);
+
+
+#pragma endregion
 };

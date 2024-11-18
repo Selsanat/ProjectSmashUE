@@ -5,6 +5,8 @@
 
 #include "Characters/SmashCharacter.h"
 #include "Characters/SmashCharacterStateID.h"
+#include "Characters/SmashCharacterStateMachine.h"
+
 ESmashCharacterStateID USmashCharacterStateWalk::GetStateID()
 {
 	return ESmashCharacterStateID::Walk;
@@ -44,13 +46,23 @@ void USmashCharacterStateWalk::StateTick(float DeltaTime)
 		0.1f,
 		FColor::Green,
 		TEXT("Tick StateWalk")
-		);
-	USkeletalMeshComponent* Mesh = Character->GetMesh();
+	);
+	if (FMath::Abs(Character->GetInputMoveX()) < 0.1f)
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+	}
+	else
+	{
+		Character->SetOrientX(Character->GetInputMoveX());
+		Character->AddMovementInput(FVector::ForwardVector, Character->GetOrientX());
+	}
+	
+	/*USkeletalMeshComponent* Mesh = Character->GetMesh();
 	FVector StaticMesh_Location = Mesh->GetRelativeLocation();
 	float HorizontalVelocity = Character->GetHorizontalVelocity();
 	float Orient = FMath::Sign(Character->GetOrientX());
 	HorizontalVelocity = FMath::Clamp((HorizontalVelocity+Acceleration * DeltaTime) * Orient, -WalkSpeedMax, WalkSpeedMax);
 	Character->SetHorizontalVelocity(HorizontalVelocity);
 	FVector Location = FVector(StaticMesh_Location.X + HorizontalVelocity, StaticMesh_Location.Y, StaticMesh_Location.Z);
-	Mesh->SetRelativeLocation(Location);
+	Mesh->SetRelativeLocation(Location);*/
 }
