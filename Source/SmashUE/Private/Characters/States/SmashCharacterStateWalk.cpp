@@ -23,6 +23,8 @@ void USmashCharacterStateWalk::StateEnter(ESmashCharacterStateID PreviousStateID
 		TEXT("Enter StateWalk")
 		);
 	Character->PlayAnimMontage(WalkMontage);
+
+	Character->InputMoveXFastEvent.AddDynamic(this, &USmashCharacterStateWalk::OnInputMoveXFast);
 }
 
 void USmashCharacterStateWalk::StateExit(ESmashCharacterStateID NextStateID)
@@ -35,6 +37,8 @@ void USmashCharacterStateWalk::StateExit(ESmashCharacterStateID NextStateID)
 		FColor::Red,
 		TEXT("Exit StateWalk")
 		);
+
+	Character->InputMoveXFastEvent.RemoveDynamic(this, &USmashCharacterStateWalk::OnInputMoveXFast);
 }
 
 void USmashCharacterStateWalk::StateTick(float DeltaTime)
@@ -47,7 +51,7 @@ void USmashCharacterStateWalk::StateTick(float DeltaTime)
 		FColor::Green,
 		TEXT("Tick StateWalk")
 	);
-	if (FMath::Abs(Character->GetInputMoveX()) < 0.1f)
+	if (FMath::Abs(Character->GetInputMoveX()) < Character->GetInputMoveXThreshold())
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
 	}
@@ -65,4 +69,9 @@ void USmashCharacterStateWalk::StateTick(float DeltaTime)
 	Character->SetHorizontalVelocity(HorizontalVelocity);
 	FVector Location = FVector(StaticMesh_Location.X + HorizontalVelocity, StaticMesh_Location.Y, StaticMesh_Location.Z);
 	Mesh->SetRelativeLocation(Location);*/
+}
+
+void USmashCharacterStateWalk::OnInputMoveXFast(float InputMoveX)
+{
+	StateMachine->ChangeState(ESmashCharacterStateID::Run);
 }

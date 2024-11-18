@@ -14,12 +14,15 @@ class SMASHUE_API USmashCharacterStateIdle : public USmashCharacterState
 
 public:
 	virtual ESmashCharacterStateID GetStateID() override;
-
+	
 	virtual void StateEnter(ESmashCharacterStateID PreviousStateID) override;
 
 	virtual void StateExit(ESmashCharacterStateID NextStateID) override;
 
 	virtual void StateTick(float DeltaTime) override;
+
+	UFUNCTION()
+	void OnInputMoveXFast(float InputMoveX);
 
 protected:
 	UPROPERTY(EditAnywhere)

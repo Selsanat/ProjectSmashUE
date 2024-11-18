@@ -31,6 +31,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	float GetInputMoveXThreshold();
 
 #pragma endregion Unreal Default
 
@@ -77,6 +78,9 @@ public:
 	UPROPERTY()
 	TObjectPtr<USmashCharacterInputData> InputData;
 
+	UPROPERTY()
+	float InputMoveXThreshold = 0.f;
+
 protected:
 	void SetupMappingContextIntoController() const;
 	
@@ -84,17 +88,24 @@ protected:
 
 #pragma region Input Move X
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputMoveXEvent, float, InputMoveX);
 public:
 	float GetInputMoveX() const;
 
+	UPROPERTY()
+	FInputMoveXEvent InputMoveXFastEvent;
+	
 protected:
 	UPROPERTY()
 	float InputMoveX = 0.f;
 
 private:
+
 	void BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent);
 
 	void OnInputMoveX(const FInputActionValue& InputActionValue);
+
+	void OnInputMoveXFast(const FInputActionValue& InputActionValue);
 
 
 #pragma endregion

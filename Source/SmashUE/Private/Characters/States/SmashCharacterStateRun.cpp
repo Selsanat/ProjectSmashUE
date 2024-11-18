@@ -5,6 +5,7 @@
 
 #include "Characters/SmashCharacter.h"
 #include "Characters/SmashCharacterStateID.h"
+#include "Characters/SmashCharacterStateMachine.h"
 
 ESmashCharacterStateID USmashCharacterStateRun::GetStateID()
 {
@@ -46,13 +47,15 @@ void USmashCharacterStateRun::StateTick(float DeltaTime)
 		FColor::Green,
 		TEXT("Tick StateRun")
 		);
-	USkeletalMeshComponent* Mesh = Character->GetMesh();
-	FVector StaticMesh_Location = Mesh->GetRelativeLocation();
-	float HorizontalVelocity = Character->GetHorizontalVelocity();
-	float Orient = FMath::Sign(Character->GetOrientX());
-	HorizontalVelocity = FMath::Clamp((HorizontalVelocity+Acceleration * DeltaTime) * Orient, -RunSpeedMax, RunSpeedMax);
-	Character->SetHorizontalVelocity(HorizontalVelocity);
-	FVector Location = FVector(StaticMesh_Location.X + HorizontalVelocity, StaticMesh_Location.Y, StaticMesh_Location.Z);
-	Mesh->SetRelativeLocation(Location);
+
+	if (FMath::Abs(Character->GetInputMoveX()) < Character->GetInputMoveXThreshold())
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+	}
+	else
+	{
+		Character->SetOrientX(Character->GetInputMoveX());
+		Character->AddMovementInput(FVector::ForwardVector, Character->GetInputMoveX());
+	}
 }
 
