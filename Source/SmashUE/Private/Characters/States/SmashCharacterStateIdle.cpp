@@ -6,6 +6,7 @@
 #include "Characters/SmashCharacter.h"
 #include "Characters/SmashCharacterStateID.h"
 #include "Characters/SmashCharacterStateMachine.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ESmashCharacterStateID USmashCharacterStateIdle::GetStateID()
 {
@@ -24,7 +25,7 @@ void USmashCharacterStateIdle::StateEnter(ESmashCharacterStateID PreviousStateID
 		);
 	Character->PlayAnimMontage(IdleMontage);
 	Character->SetHorizontalVelocity(0);
-
+	Character->CanDoubleJump = true;
 	Character->InputMoveXFastEvent.AddDynamic(this, &USmashCharacterStateIdle::OnInputMoveXFast);
 }
 
@@ -56,6 +57,17 @@ void USmashCharacterStateIdle::StateTick(float DeltaTime)
 	if (FMath::Abs(Character->GetInputMoveX()) > Character->GetInputMoveXThreshold())
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Walk);
+		return;
+	}
+	if (FMath::Abs(Character->GetInputJump()) > 0.1f)
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
+		return;
+	}
+	if (!Character->GetCharacterMovement()->IsMovingOnGround())
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
+		return;
 	}
 }
 

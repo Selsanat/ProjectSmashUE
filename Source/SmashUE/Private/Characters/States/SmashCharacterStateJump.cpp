@@ -3,34 +3,94 @@
 
 #include "Characters/States/SmashCharacterStateJump.h"
 
+#include "Characters/SmashCharacter.h"
+#include "Characters/SmashCharacterStateMachine.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 
-// Sets default values for this component's properties
-USmashCharacterStateJump::USmashCharacterStateJump()
+
+ESmashCharacterStateID USmashCharacterStateJump::GetStateID()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	return ESmashCharacterStateID::Jump;
 }
 
-
-// Called when the game starts
-void USmashCharacterStateJump::BeginPlay()
+void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
-	Super::BeginPlay();
+	Super::StateEnter(PreviousStateID);
 
-	// ...
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		3.f,
+		FColor::Cyan,
+		TEXT("Enter StateJump")
+		);
+	CurrentJumpTime = 0.0f;
+	float h = JumpMaxheight;
+	float th = JumpDuration / 2;
+	if (Character->CanDoubleJump)
+	{
+		Character->PlayAnimMontage(JumpMontage);
+	}
+	else
+	{
+		if (Character->GetInputMoveX() == Character->GetOrientX())
+		{
+			Character->PlayAnimMontage(SecondJumpMontage);
+		}
+		else
+		{
+			Character->PlayAnimMontage(SecondJumpBackwardMontage);
+		}
+	}
+	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * (2 * h / th));
+}
+
+void USmashCharacterStateJump::StateExit(ESmashCharacterStateID NextStateID)
+{
+	Super::StateExit(NextStateID);
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		3.f,
+		FColor::Red,
+		TEXT("Exit StateJump")
+	);
+}
+
+void USmashCharacterStateJump::StateTick(float DeltaTime)
+{
+	Super::StateTick(DeltaTime);
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		0.1f,
+		FColor::Green,
+		TEXT("Tick StateJump")
+	);
+
+	float h;
+	float th;
+	float g;
+	if (Character->GetInputJump()<0.1f)
+	{
+		h = JumpMaxheight/5;
+		th = JumpDuration/5/ 2;	
+	}
+	else
+	{
+		h = JumpMaxheight;
+		th = JumpDuration / 2;
+	}
+	g = (-2 * h) / FMath::Pow(th, 2);
+	FVector CharacterVelocity = Character->GetCharacterMovement()->Velocity;
+	Character->GetCharacterMovement()->Velocity.X = FMath::Clamp(CharacterVelocity.X + (Character->GetInputMoveX() * JumpWalkSpeed * JumpAirControl), -JumpWalkSpeed, JumpWalkSpeed);
+	FVector UpVector = CharacterVelocity+ FVector::UpVector * g * DeltaTime;
+	Character->GetCharacterMovement()->AddImpulse(UpVector);
 	
+	if (CharacterVelocity.Z<0.1f)
+	{
+		Character->StopJumping();
+		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
+		return;
+	}
 }
-
-
-// Called every frame
-void USmashCharacterStateJump::TickComponent(float DeltaTime, ELevelTick TickType,
-                                             FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-

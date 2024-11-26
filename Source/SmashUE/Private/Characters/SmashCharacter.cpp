@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Characters/SmashCharacterInputData.h"
 #include "EnhancedInputComponent.h"
+#include "Camera/CameraWorldSubsystem.h"
 
 // Sets default values
 ASmashCharacter::ASmashCharacter()
@@ -21,8 +22,9 @@ void ASmashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CreateStateMachine();
-
 	InitStateMachine();
+
+	GetWorld()->GetSubsystem<UCameraWorldSubsystem>()->AddFollowTarget(this);
 }
 
 // Called every frame
@@ -51,6 +53,10 @@ void ASmashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	BindInputMoveXAxisAndActions(EnhancedInputComponent);
 }
 
+float ASmashCharacter::GetInputJump() const
+{
+	return InputJump;
+}
 float ASmashCharacter::GetInputMoveXThreshold()
 {
 	return InputMoveXThreshold;
@@ -134,7 +140,7 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 		ETriggerEvent::Completed,
 		this,
 		&ASmashCharacter::OnInputMoveX
-);
+		);
 	}
 
 	if (InputData->InputActionMoveXFast)
@@ -146,11 +152,40 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 			&ASmashCharacter::OnInputMoveXFast
 			);
 	}
+
+	if (InputData->InputActionJump)
+	{
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionJump,
+			ETriggerEvent::Started,
+			this,
+			&ASmashCharacter::OnInputJump
+		);
+
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionJump,
+			ETriggerEvent::Triggered,
+			this,
+			&ASmashCharacter::OnInputJump
+		);
+
+		EnhancedInputComponent->BindAction(
+		InputData->InputActionJump,
+		ETriggerEvent::Completed,
+		this,
+		&ASmashCharacter::OnInputJump
+		);
+	}
 }
 
 void ASmashCharacter::OnInputMoveX(const FInputActionValue& InputActionValue)
 {
 	InputMoveX = InputActionValue.Get<float>();
+}
+
+void ASmashCharacter::OnInputJump(const FInputActionValue& InputActionValue)
+{
+	InputJump = InputActionValue.Get<float>();
 }
 
 void ASmashCharacter::OnInputMoveXFast(const FInputActionValue& InputActionValue)

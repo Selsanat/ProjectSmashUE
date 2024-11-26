@@ -7,21 +7,41 @@
 #include "SmashCharacterStateJump.generated.h"
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(SmashCharacterState), meta=(BlueprintSpawnableComponent))
 class SMASHUE_API USmashCharacterStateJump : public USmashCharacterState
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
-	USmashCharacterStateJump();
+	virtual ESmashCharacterStateID GetStateID() override;
 
+
+	virtual void StateEnter(ESmashCharacterStateID PreviousStateID) override;
+
+	virtual void StateExit(ESmashCharacterStateID NextStateID) override;
+
+	virtual void StateTick(float DeltaTime) override;
+
+	float CurrentJumpTime;
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* JumpMontage;
 
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* SecondJumpMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* SecondJumpBackwardMontage;
+
+	UPROPERTY(EditAnywhere)
+	float JumpWalkSpeed = 600.f;
+
+	UPROPERTY(EditAnywhere)
+	float JumpMaxheight = 25000.f;
+
+	UPROPERTY(EditAnywhere)
+	float JumpDuration = 1.f;
+
+	UPROPERTY(EditAnywhere)
+	float JumpAirControl = 0.2f;
 };

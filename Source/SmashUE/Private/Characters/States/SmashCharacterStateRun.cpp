@@ -6,6 +6,7 @@
 #include "Characters/SmashCharacter.h"
 #include "Characters/SmashCharacterStateID.h"
 #include "Characters/SmashCharacterStateMachine.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ESmashCharacterStateID USmashCharacterStateRun::GetStateID()
 {
@@ -47,15 +48,28 @@ void USmashCharacterStateRun::StateTick(float DeltaTime)
 		FColor::Green,
 		TEXT("Tick StateRun")
 		);
-
-	if (FMath::Abs(Character->GetInputMoveX()) < Character->GetInputMoveXThreshold())
+	if (FMath::Abs(Character->GetInputJump()) > 0.1f)
 	{
-		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
+		return;
 	}
 	else
 	{
-		Character->SetOrientX(Character->GetInputMoveX());
-		Character->AddMovementInput(FVector::ForwardVector, Character->GetInputMoveX());
+		if (FMath::Abs(Character->GetInputMoveX()) < Character->GetInputMoveXThreshold())
+		{
+			StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+			return;
+		}
+		else
+		{
+			Character->SetOrientX(Character->GetInputMoveX());
+			Character->AddMovementInput(FVector::ForwardVector, Character->GetInputMoveX());
+		}
+	}
+	if (!Character->GetCharacterMovement()->IsMovingOnGround())
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
+		return;
 	}
 }
 

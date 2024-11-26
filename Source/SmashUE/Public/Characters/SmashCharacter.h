@@ -31,6 +31,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	float GetInputJump() const;
 	float GetInputMoveXThreshold();
 
 #pragma endregion Unreal Default
@@ -94,10 +95,16 @@ public:
 
 	UPROPERTY()
 	FInputMoveXEvent InputMoveXFastEvent;
+
+	UPROPERTY()
+	bool CanDoubleJump = true;
 	
 protected:
 	UPROPERTY()
 	float InputMoveX = 0.f;
+
+	UPROPERTY()
+	float InputJump = 0.f;
 
 private:
 
@@ -106,6 +113,8 @@ private:
 	void OnInputMoveX(const FInputActionValue& InputActionValue);
 
 	void OnInputMoveXFast(const FInputActionValue& InputActionValue);
+
+	void OnInputJump(const FInputActionValue& InputActionValue);
 
 
 #pragma endregion

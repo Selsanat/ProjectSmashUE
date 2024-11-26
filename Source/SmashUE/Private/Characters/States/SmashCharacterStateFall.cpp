@@ -3,34 +3,66 @@
 
 #include "Characters/States/SmashCharacterStateFall.h"
 
+#include "Characters/SmashCharacter.h"
+#include "Characters/SmashCharacterStateMachine.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 
-// Sets default values for this component's properties
-USmashCharacterStateFall::USmashCharacterStateFall()
+
+ESmashCharacterStateID USmashCharacterStateFall::GetStateID()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	return ESmashCharacterStateID::Fall;
 }
 
-
-// Called when the game starts
-void USmashCharacterStateFall::BeginPlay()
+void USmashCharacterStateFall::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
-	Super::BeginPlay();
+	Super::StateEnter(PreviousStateID);
 
-	// ...
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		3.f,
+		FColor::Cyan,
+		TEXT("Enter StateFall")
+		);
+	Character->PlayAnimMontage(FallMontage);
+	Character->GetCharacterMovement()->Velocity.Z = 0;
 	
 }
 
-
-// Called every frame
-void USmashCharacterStateFall::TickComponent(float DeltaTime, ELevelTick TickType,
-                                             FActorComponentTickFunction* ThisTickFunction)
+void USmashCharacterStateFall::StateExit(ESmashCharacterStateID NextStateID)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::StateExit(NextStateID);
 
-	// ...
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		3.f,
+		FColor::Red,
+		TEXT("Exit StateFall")
+	);
 }
 
+void USmashCharacterStateFall::StateTick(float DeltaTime)
+{
+	Super::StateTick(DeltaTime);
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		0.1f,
+		FColor::Green,
+		TEXT("Tick StateFall")
+	);
+	FVector CharacterVelocity = Character->GetCharacterMovement()->Velocity;
+	Character->GetCharacterMovement()->Velocity.X = FMath::Clamp(CharacterVelocity.X + Character->GetInputMoveX() * FallHorizontalMoveSpeed * FallAirControl, -FallHorizontalMoveSpeed, FallHorizontalMoveSpeed);
+	FVector UpVector = CharacterVelocity+ FVector::UpVector * FallGravityScale* DeltaTime;
+	Character->GetCharacterMovement()->AddImpulse(UpVector);
+
+	if(Character->GetMovementComponent()->IsMovingOnGround())
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+	}
+	if(Character->GetInputJump()>0.1f && Character->CanDoubleJump)
+	{
+		Character->CanDoubleJump = false;
+		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
+	}
+}
