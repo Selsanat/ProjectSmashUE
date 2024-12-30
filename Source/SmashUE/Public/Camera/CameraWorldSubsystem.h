@@ -96,6 +96,9 @@ protected :
 	UPROPERTY()
 	float CameraZoomDistanceBetweenTargetsMax = 1500.f;
 
+	UPROPERTY()
+	FString CameraBoundsTag = "CameraBounds";
+
 	UFUNCTION()
 	void InitCameraZoomParameters();
 #pragma endregion
