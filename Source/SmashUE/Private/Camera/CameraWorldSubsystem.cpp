@@ -21,14 +21,84 @@ void UCameraWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
     {
         InitCameraBounds(CameraBoundsActor);
     }
+
+    InitCameraZoomParameters();
 }
 
+void UCameraWorldSubsystem::InitCameraZoomParameters()
+{
+    // Trouver CameraDistanceMin par tag et mettre à jour CameraZoomYMin en fonction de la position Y
+    UCameraComponent* CameraDistanceMin = FindCameraByTag(TEXT("CameraDistanceMin"));
+    if (CameraDistanceMin)
+    {
+        CameraZoomYMin = CameraDistanceMin->GetComponentLocation().Y;
+    }
+
+    // Trouver CameraDistanceMax par tag et mettre à jour CameraZoomYMax en fonction de la position Y
+    UCameraComponent* CameraDistanceMax = FindCameraByTag(TEXT("CameraDistanceMax"));
+    if (CameraDistanceMax)
+    {
+        CameraZoomYMax = CameraDistanceMax->GetComponentLocation().Y;
+    }
+}
 void UCameraWorldSubsystem::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
     TickUpdateCameraPosition(DeltaTime);
+    TickUpdateCameraZoom(DeltaTime);
 }
 
+void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
+{
+    if (!CameraMain) return;
+
+    float GreatestDistanceBetweenTargets = CalculateGreatestDistanceBetweenTargets();
+
+    // Calculer le pourcentage actuel de la distance
+    float Percent = FMath::Clamp(
+        (GreatestDistanceBetweenTargets - CameraZoomDistanceBetweenTargetsMin) /
+        (CameraZoomDistanceBetweenTargetsMax - CameraZoomDistanceBetweenTargetsMin),
+        0.0f,
+        1.0f
+    );
+
+    // Mettre à jour la position Y de la caméra principale avec une interpolation Lerp
+    float NewCameraY = FMath::Lerp(CameraZoomYMin, CameraZoomYMax, 1-Percent);
+    FVector NewLocation = CameraMain->GetComponentLocation();
+    NewLocation.Y = NewCameraY;
+
+    GEngine->AddOnScreenDebugMessage(-1,200,FColor::Purple,FString::Printf(TEXT("Min %s"),*CameraMain->GetComponentLocation().ToString()));
+    GEngine->AddOnScreenDebugMessage(-1,200,FColor::Yellow,FString::Printf(TEXT("Max %s"),*NewLocation.ToString()));
+    CameraMain->SetWorldLocation(NewLocation);
+}
+float UCameraWorldSubsystem::CalculateGreatestDistanceBetweenTargets()
+{
+    float GreatestDistance = 0.0f;
+
+    for (int32 i = 0; i < FollowTargets.Num(); ++i)
+    {
+        ICameraFollowTarget* TargetA = Cast<ICameraFollowTarget>(FollowTargets[i]);
+        if (!TargetA || !TargetA->isFollowable()) continue;
+
+        FVector PositionA = TargetA->GetFollowPosition();
+
+        for (int32 j = i + 1; j < FollowTargets.Num(); ++j)
+        {
+            ICameraFollowTarget* TargetB = Cast<ICameraFollowTarget>(FollowTargets[j]);
+            if (!TargetB || !TargetB->isFollowable()) continue;
+
+            FVector PositionB = TargetB->GetFollowPosition();
+            float Distance = FVector::Dist(PositionA, PositionB);
+
+            if (Distance > GreatestDistance)
+            {
+                GreatestDistance = Distance;
+            }
+        }
+    }
+
+    return GreatestDistance;
+}
 void UCameraWorldSubsystem::AddFollowTarget(UObject* FollowTarget)
 {
     FollowTargets.Add(FollowTarget);

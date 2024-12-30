@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "Camera/CameraComponent.h"
 #include "CameraWorldSubsystem.generated.h"
 
 class UCameraComponent;
@@ -19,7 +20,7 @@ class SMASHUE_API UCameraWorldSubsystem : public UTickableWorldSubsystem
 public :
 
 	virtual void PostInitialize() override;
-
+	
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 	virtual void Tick (float DeltaTime) override;
@@ -31,6 +32,10 @@ public :
 	void AddFollowTarget(UObject* FollowTarget);
 
 	void RemoveFollowTarget(UObject* FollowTarget);
+
+protected :
+
+	float CalculateGreatestDistanceBetweenTargets();
 #pragma endregion
 #pragma region Main Camera
 protected :
@@ -38,9 +43,12 @@ protected :
 	UPROPERTY()
 	TObjectPtr<UCameraComponent> CameraMain;
 
+	void TickUpdateCameraZoom(float DeltaTime);
+
+
 #pragma endregion
 #pragma region Misc
-protected :
+	protected :
 	UPROPERTY()
 	TArray<UObject*> FollowTargets;
 
@@ -50,7 +58,6 @@ protected :
 
 	UCameraComponent* FindCameraByTag(const FName& Tag) const;
 #pragma endregion
-
 #pragma region Bounds
 
 protected :
@@ -73,5 +80,23 @@ protected :
 
 	FVector CalculateWorldPositionFromViewportPosition(const FVector2D& ViewportPosition);
 	
+#pragma endregion
+#pragma region Zoom
+	
+protected :
+	UPROPERTY()
+	float CameraZoomYMin = 0.f;
+
+	UPROPERTY()
+	float CameraZoomYMax = 0.f;
+
+	UPROPERTY()
+	float CameraZoomDistanceBetweenTargetsMin = 300.f;
+
+	UPROPERTY()
+	float CameraZoomDistanceBetweenTargetsMax = 1500.f;
+
+	UFUNCTION()
+	void InitCameraZoomParameters();
 #pragma endregion
 };
