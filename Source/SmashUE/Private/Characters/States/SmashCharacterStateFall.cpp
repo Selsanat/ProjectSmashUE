@@ -17,13 +17,7 @@ ESmashCharacterStateID USmashCharacterStateFall::GetStateID()
 void USmashCharacterStateFall::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		3.f,
-		FColor::Cyan,
-		TEXT("Enter StateFall")
-		);
+	
 	Character->PlayAnimMontage(FallMontage);
 	Character->GetCharacterMovement()->Velocity.Z = 0;
 	
@@ -32,25 +26,11 @@ void USmashCharacterStateFall::StateEnter(ESmashCharacterStateID PreviousStateID
 void USmashCharacterStateFall::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		3.f,
-		FColor::Red,
-		TEXT("Exit StateFall")
-	);
 }
 
 void USmashCharacterStateFall::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		0.1f,
-		FColor::Green,
-		TEXT("Tick StateFall")
-	);
 	FVector CharacterVelocity = Character->GetCharacterMovement()->Velocity;
 	Character->GetCharacterMovement()->Velocity.X = FMath::Clamp(CharacterVelocity.X + Character->GetInputMoveX() * FallHorizontalMoveSpeed * FallAirControl, -FallHorizontalMoveSpeed, FallHorizontalMoveSpeed);
 	FVector UpVector = CharacterVelocity+ FVector::UpVector * FallGravityScale* DeltaTime;

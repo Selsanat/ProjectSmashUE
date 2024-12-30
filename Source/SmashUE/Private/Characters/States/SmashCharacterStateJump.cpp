@@ -17,13 +17,7 @@ ESmashCharacterStateID USmashCharacterStateJump::GetStateID()
 void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		3.f,
-		FColor::Cyan,
-		TEXT("Enter StateJump")
-		);
+	
 	CurrentJumpTime = 0.0f;
 	float h = JumpMaxheight;
 	float th = JumpDuration / 2;
@@ -48,25 +42,13 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 void USmashCharacterStateJump::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		3.f,
-		FColor::Red,
-		TEXT("Exit StateJump")
-	);
+	
 }
 
 void USmashCharacterStateJump::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		0.1f,
-		FColor::Green,
-		TEXT("Tick StateJump")
-	);
+	
 
 	float h;
 	float th;

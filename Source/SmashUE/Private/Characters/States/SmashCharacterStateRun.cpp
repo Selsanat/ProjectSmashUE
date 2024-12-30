@@ -16,38 +16,20 @@ ESmashCharacterStateID USmashCharacterStateRun::GetStateID()
 void USmashCharacterStateRun::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		3.f,
-		FColor::Cyan,
-		TEXT("Enter StateRun")
-		);
+	
 	Character->PlayAnimMontage(RunMontage);
 }
 
 void USmashCharacterStateRun::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		3.f,
-		FColor::Red,
-		TEXT("Exit StateRun")
-		);
+	
 }
 
 void USmashCharacterStateRun::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		0.1f,
-		FColor::Green,
-		TEXT("Tick StateRun")
-		);
+	
 	if (FMath::Abs(Character->GetInputJump()) > 0.1f)
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
